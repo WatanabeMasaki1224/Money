@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] float _moveSpeed = 5f;
+    [SerializeField] int _attackPower = 1;
     [SerializeField] Transform _cameraTransform;
     [SerializeField] float _jumpPower = 7f;
     [SerializeField] float _gravity = -20f;
@@ -14,6 +15,7 @@ public class PlayerController : MonoBehaviour
     private bool _isGrounded;
     private bool _jumpRequested;
     private bool _isAttacking;
+    public int AttackPower => _attackPower;
 
     private CharacterController _characterController;
     private Animator _animator;
