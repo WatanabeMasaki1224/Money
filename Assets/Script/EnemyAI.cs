@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class EnemyAI : MonoBehaviour
 {
@@ -12,13 +12,15 @@ public class EnemyAI : MonoBehaviour
     private Punch _punch;
     private CharacterController _characterController;
     private Animator _animator;
+    private PlayerController _playerController;
 
     private void Awake()
     {
         _enemyBase = GetComponent<EnemyBase>();
-        _punch = GetComponent<Punch>();
+        _punch= GetComponent<Punch>();
         _characterController = GetComponent<CharacterController>();
         _animator = GetComponent<Animator>();
+        _playerController = _player.GetComponent<PlayerController>();
     }
 
     private void Update()
@@ -45,7 +47,8 @@ public class EnemyAI : MonoBehaviour
 
     private void NormalUpdate()
     {
-        if (CanSeePlayer())
+        if (_playerController.CurrentState == PlayerController.PlayerState.Stealing
+        && CanSeePlayer())
         {
             _enemyBase.ChangeState(EnemyBase.EnemyState.Attack);
         }
@@ -56,11 +59,11 @@ public class EnemyAI : MonoBehaviour
         Vector3 direction = _player.position - transform.position;
         direction.y = 0f;
 
-        // ������m�F
+        // �������m�F
         if (direction.magnitude > _viewDistance)
             return false;
 
-        // ���E�̊p�x��m�F
+        // ���E�̊p�x���m�F
         float angle = Vector3.Angle(transform.forward, direction);
 
         if (angle > _viewAngle / 2f)
@@ -81,7 +84,7 @@ public class EnemyAI : MonoBehaviour
         if (_punch.IsAttacking)
             return;
 
-        // �U���I����A�v���C���[�̕��������
+        // �U���I����A�v���C���[�̕���������
         if (direction != Vector3.zero)
         {
             transform.forward = direction.normalized;
@@ -129,7 +132,7 @@ public class EnemyAI : MonoBehaviour
 
     private void NegotiationUpdate()
     {
-        // ����̍s��
+        // �����̍s��
     }
 
     private void ExitUpdate()
@@ -159,7 +162,7 @@ public class EnemyAI : MonoBehaviour
             transform.position,
             transform.position + rightDirection * _viewDistance);
 
-        // ���E�̐�[��ʂŌ���
+        // ���E�̐�[���ʂŌ���
         Vector3 previousPoint =
             transform.position + leftDirection * _viewDistance;
 

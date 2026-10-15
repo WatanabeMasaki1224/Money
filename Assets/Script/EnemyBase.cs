@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class EnemyBase : MonoBehaviour
@@ -13,6 +14,9 @@ public class EnemyBase : MonoBehaviour
     [SerializeField] private int _hp = 5;
     [SerializeField] private EnemyState _state = EnemyState.Normal;
     [SerializeField] private int _attackPower = 10;
+    [SerializeField] private int _moneyReward = 100;
+    [SerializeField] private PlayerController _playerController;
+
     public int AttackPower => _attackPower;
     public EnemyState State => _state;
 
@@ -34,6 +38,11 @@ public class EnemyBase : MonoBehaviour
 
     protected virtual void Die()
     {
+        if (_playerController != null)
+        {
+            _playerController.AddMoney(_moneyReward);
+        }
+
         Destroy(gameObject);
     }
 }
