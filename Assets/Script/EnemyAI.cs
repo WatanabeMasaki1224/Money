@@ -1,15 +1,24 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class EnemyAI : MonoBehaviour
 {
     [SerializeField] private Transform _player;
     [SerializeField] private float _viewDistance = 10f;
     [SerializeField] private float _viewAngle = 90f;
+    [SerializeField] private float _attackRange = 1.5f;
+    [SerializeField] private float _moveSpeed = 3f;
+
     private EnemyBase _enemyBase;
+    private Punch _punch;
+    private CharacterController _characterController;
+    private Animator _animator;
 
     private void Awake()
     {
         _enemyBase = GetComponent<EnemyBase>();
+        _punch = GetComponent<Punch>();
+        _characterController = GetComponent<CharacterController>();
+        _animator = GetComponent<Animator>();
     }
 
     private void Update()
@@ -38,7 +47,7 @@ public class EnemyAI : MonoBehaviour
     {
         if (CanSeePlayer())
         {
-            Debug.Log("ƒvƒŒƒCƒ„[‚ðŽ‹ŠE“à‚Å”­Œ©");
+            _enemyBase.ChangeState(EnemyBase.EnemyState.Attack);
         }
     }
 
@@ -47,11 +56,11 @@ public class EnemyAI : MonoBehaviour
         Vector3 direction = _player.position - transform.position;
         direction.y = 0f;
 
-        // ‹——£‚ðŠm”F
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½mï¿½F
         if (direction.magnitude > _viewDistance)
             return false;
 
-        // Ž‹ŠE‚ÌŠp“x‚ðŠm”F
+        // ï¿½ï¿½ï¿½Eï¿½ÌŠpï¿½xï¿½ï¿½mï¿½F
         float angle = Vector3.Angle(transform.forward, direction);
 
         if (angle > _viewAngle / 2f)
@@ -63,17 +72,69 @@ public class EnemyAI : MonoBehaviour
 
     private void AttackUpdate()
     {
-        // UŒ‚Žž‚Ìs“®
+        Vector3 direction = _player.position - transform.position;
+        direction.y = 0f;
+
+        float distance = direction.magnitude;
+
+        // ï¿½Uï¿½ï¿½ï¿½ï¿½ï¿½ÍˆÚ“ï¿½ï¿½ï¿½ï¿½È‚ï¿½
+        if (_punch.IsAttacking)
+            return;
+
+        // ï¿½Uï¿½ï¿½ï¿½Iï¿½ï¿½ï¿½ï¿½Aï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½Ì•ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        if (direction != Vector3.zero)
+        {
+            transform.forward = direction.normalized;
+        }
+
+        // ï¿½ï¿½ï¿½Eï¿½Ì‹ï¿½ï¿½ï¿½ï¿½ï¿½è‰“ï¿½ï¿½ï¿½ï¿½Î’Êï¿½ï¿½Ô‚É–ß‚ï¿½
+        if (distance > _viewDistance)
+        {
+            if (_animator != null)
+                _animator.SetBool("isWalking", false);
+            _enemyBase.ChangeState(EnemyBase.EnemyState.Normal);
+
+            return;
+        }
+
+        // ï¿½Uï¿½ï¿½ï¿½ï¿½ï¿½Í‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È‚ï¿½Uï¿½ï¿½
+        if (distance <= _attackRange)
+        {
+            if (_animator != null)
+                _animator.SetBool("isWalking", false);
+
+            _punch.Attack();
+            return;
+        }
+
+        // ï¿½Uï¿½ï¿½ï¿½ï¿½ï¿½Í‚ï¿½ï¿½È‚ï¿½ï¿½ï¿½Îƒvï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½ÉÚ‹ï¿½
+        Vector3 moveDirection = direction.normalized;
+
+        if (_characterController != null)
+        {
+            _characterController.Move(
+                moveDirection * _moveSpeed * Time.deltaTime);
+        }
+
+        if (_animator != null)
+        {
+            _animator.SetBool("isWalking", true);
+            Debug.Log("isWalking: " + _animator.GetBool("isWalking"));
+        }
+        else
+        {
+            Debug.Log("Animatorï¿½ï¿½ï¿½æ“¾ï¿½Å‚ï¿½ï¿½Ä‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½");
+        }
     }
 
     private void NegotiationUpdate()
     {
-        // ŒðÂ’†‚Ìs“®
+        // ï¿½ï¿½Â’ï¿½ï¿½Ìsï¿½ï¿½
     }
 
     private void ExitUpdate()
     {
-        // ‘ÞêŽž‚Ìs“®
+        // ï¿½ÞêŽžï¿½Ìsï¿½ï¿½
     }
 
     private void OnDrawGizmosSelected()
@@ -83,7 +144,7 @@ public class EnemyAI : MonoBehaviour
         float halfAngle = _viewAngle / 2f;
         Vector3 forward = transform.forward;
 
-        // Ž‹ŠE‚Ì¶‰E‚Ì’[
+        // ï¿½ï¿½ï¿½Eï¿½Ìï¿½ï¿½Eï¿½Ì’[
         Vector3 leftDirection =
             Quaternion.Euler(0f, -halfAngle, 0f) * forward;
 
@@ -98,7 +159,7 @@ public class EnemyAI : MonoBehaviour
             transform.position,
             transform.position + rightDirection * _viewDistance);
 
-        // Ž‹ŠE‚Ìæ’[‚ðŒÊ‚ÅŒ‹‚Ô
+        // ï¿½ï¿½ï¿½Eï¿½Ìï¿½[ï¿½ï¿½Ê‚ÅŒï¿½ï¿½ï¿½
         Vector3 previousPoint =
             transform.position + leftDirection * _viewDistance;
 

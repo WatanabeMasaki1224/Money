@@ -12,6 +12,8 @@ public class EnemyBase : MonoBehaviour
 
     [SerializeField] private int _hp = 5;
     [SerializeField] private EnemyState _state = EnemyState.Normal;
+    [SerializeField] private int _attackPower = 10;
+    public int AttackPower => _attackPower;
     public EnemyState State => _state;
 
     public void ChangeState(EnemyState state)

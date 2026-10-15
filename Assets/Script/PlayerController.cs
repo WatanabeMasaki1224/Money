@@ -1,4 +1,6 @@
+﻿using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
@@ -6,27 +8,24 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float _moveSpeed = 5f;
     [SerializeField] int _attackPower = 1;
     [SerializeField] Transform _cameraTransform;
-    [SerializeField] float _jumpPower = 7f;
-    [SerializeField] float _gravity = -20f;
-    [SerializeField] Collider _attackHitbox;
+    [SerializeField] private int _hp = 100;
 
     private Vector2 _moveInput;
-    private float _verticalVelocity;
-    private bool _isGrounded;
-    private bool _jumpRequested;
-    private bool _isAttacking;
     public int AttackPower => _attackPower;
 
     private CharacterController _characterController;
     private Animator _animator;
+    private Punch _punch;
+    private Steal _steal;
+
+public bool IsStealing { get; private set; }
 
     private void Awake()
     {
         _characterController = GetComponent<CharacterController>();
         _animator = GetComponent<Animator>();
-
-        if(_attackHitbox != null)
-        _attackHitbox.enabled = false;
+        _punch = GetComponent<Punch>();
+        _steal = GetComponent<Steal>();
     }
 
     public void OnMove(InputAction.CallbackContext context)
@@ -34,20 +33,23 @@ public class PlayerController : MonoBehaviour
         _moveInput = context.ReadValue<Vector2>();
     }
 
-    public void OnJump(InputAction.CallbackContext context)
-    {
-        if (context.performed)
-            _jumpRequested = true;
-    }
-
     public void OnAttack(InputAction.CallbackContext context)
     {
-        if(!context.performed || _isAttacking)
+        if (context.performed  && !IsStealing)
+            _punch.Attack();
+    }
+
+    public void OnSteal(InputAction.CallbackContext context)
+{
+    if (_steal == null)
         return;
 
-        _isAttacking = true;
-        _animator.SetTrigger("Attack");
-    }
+    if (context.started)
+        _steal.StartSteal();
+
+    if (context.canceled)
+        _steal.CancelSteal();
+}
 
     private void Update()
     {
@@ -62,41 +64,41 @@ public class PlayerController : MonoBehaviour
         Vector3 moveDirection = cameraForward * _moveInput.y
                               + cameraRight * _moveInput.x;
         moveDirection = Vector3.ClampMagnitude(moveDirection, 1f);
-        _animator.SetBool("isWalking",moveDirection.sqrMagnitude>0.01f );
-
+        
         if (moveDirection != Vector3.zero)
             transform.forward = moveDirection;
 
-        if (_jumpRequested)
+        if (IsStealing)
         {
-            if (_isGrounded)
-                _verticalVelocity = _jumpPower;
+            moveDirection = Vector3.zero;
 
-            _jumpRequested = false;
         }
+        _animator.SetBool("isWalking",moveDirection.sqrMagnitude>0.01f );
 
-        if (_isGrounded && _verticalVelocity < 0f)
-            _verticalVelocity = -2f;
-        else
-            _verticalVelocity += _gravity * Time.deltaTime;
-
-        Vector3 velocity = moveDirection * _moveSpeed;
-        velocity.y = _verticalVelocity;
-        _characterController.Move(velocity * Time.deltaTime);
-
-        _isGrounded = _characterController.isGrounded;
+        _characterController.Move(moveDirection * _moveSpeed * Time.deltaTime);
     }
 
-    public void EnableAttackHitbox()
+    public void TakeDamage(int damage)
     {
-        Debug.Log("攻撃開始");
-        _attackHitbox.enabled = true;
+        _hp -= damage;
+
+        Debug.Log($"プレイヤーが {damage} ダメージを受けた。残りHP：{_hp}");
+
+        if (_hp <= 0)
+        {
+            _hp = 0;
+            Debug.Log("プレイヤーが倒れた");
+        }
     }
 
-    public void DisableAttackHitbox()
+    public void SetStealing(bool value)
     {
-         Debug.Log("攻撃終了");
-        _attackHitbox.enabled = false;
-        _isAttacking = false;
+        IsStealing = value;
+    }
+
+    public void AddMoney(int amount)
+    {
+        _hp += amount;
+        Debug.Log($"お金を盗んだ｛amount｝");
     }
 }
