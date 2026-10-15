@@ -11,6 +11,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private int _hp = 100;
 
     private Vector2 _moveInput;
+    public int Money => _hp;
     public int AttackPower => _attackPower;
 
     private CharacterController _characterController;
@@ -64,14 +65,16 @@ public bool IsStealing { get; private set; }
         Vector3 moveDirection = cameraForward * _moveInput.y
                               + cameraRight * _moveInput.x;
         moveDirection = Vector3.ClampMagnitude(moveDirection, 1f);
-        
-        if (moveDirection != Vector3.zero)
-            transform.forward = moveDirection;
 
         if (IsStealing)
         {
             moveDirection = Vector3.zero;
 
+        }
+        else
+        {
+            if (moveDirection != Vector3.zero)
+               transform.forward = moveDirection;
         }
         _animator.SetBool("isWalking",moveDirection.sqrMagnitude>0.01f );
 
@@ -99,6 +102,6 @@ public bool IsStealing { get; private set; }
     public void AddMoney(int amount)
     {
         _hp += amount;
-        Debug.Log($"お金を盗んだ｛amount｝");
+        Debug.Log($"お金を盗んだ{amount}");
     }
 }
