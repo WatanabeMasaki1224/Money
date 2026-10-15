@@ -5,6 +5,15 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    public enum PlayerState
+    {
+        Normal,
+        Stealing,
+        Negotiating,
+        Dead
+    }
+
+    public PlayerState CurrentState { get; private set; } = PlayerState.Normal;
     [SerializeField] float _moveSpeed = 5f;
     [SerializeField] int _attackPower = 1;
     [SerializeField] Transform _cameraTransform;
@@ -18,8 +27,6 @@ public class PlayerController : MonoBehaviour
     private Animator _animator;
     private Punch _punch;
     private Steal _steal;
-
-public bool IsStealing { get; private set; }
 
     private void Awake()
     {
@@ -36,7 +43,7 @@ public bool IsStealing { get; private set; }
 
     public void OnAttack(InputAction.CallbackContext context)
     {
-        if (context.performed  && !IsStealing)
+        if (context.performed  && CurrentState == PlayerState.Normal)
             _punch.Attack();
     }
 
@@ -66,7 +73,7 @@ public bool IsStealing { get; private set; }
                               + cameraRight * _moveInput.x;
         moveDirection = Vector3.ClampMagnitude(moveDirection, 1f);
 
-        if (IsStealing)
+        if (CurrentState != PlayerState.Normal || _punch.IsAttacking)
         {
             moveDirection = Vector3.zero;
 
@@ -94,9 +101,9 @@ public bool IsStealing { get; private set; }
         }
     }
 
-    public void SetStealing(bool value)
+    public void SetState(PlayerState state)
     {
-        IsStealing = value;
+        CurrentState = state;
     }
 
     public void AddMoney(int amount)

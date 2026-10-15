@@ -10,8 +10,6 @@ public class Steal : MonoBehaviour
     private Stealable _target;
     private float _elapsedTime;
 
-    public bool IsStealing{get;private set;}
-
     private void Awake()
     {
         _playerController = GetComponent<PlayerController>();
@@ -19,7 +17,7 @@ public class Steal : MonoBehaviour
 
     public void StartSteal()
     {
-        if (IsStealing)
+        if (_playerController.CurrentState != PlayerController.PlayerState.Normal)
             return;
 
         Vector3 origin = transform.position + Vector3.up * _rayHeight;
@@ -46,15 +44,14 @@ public class Steal : MonoBehaviour
         }
 
         _elapsedTime = 0f;
-        IsStealing = true;
-        _playerController.SetStealing(true);
+        _playerController.SetState(PlayerController.PlayerState.Stealing);
 
         Debug.Log("盗み開始");
     }
 
     private void Update()
     {
-        if (!IsStealing)
+        if (_playerController.CurrentState != PlayerController.PlayerState.Stealing)
             return;
 
         if (_target == null || _target.IsStolen)
@@ -74,7 +71,7 @@ public class Steal : MonoBehaviour
 
     public void CancelSteal()
     {
-        if (!IsStealing)
+        if (_playerController.CurrentState != PlayerController.PlayerState.Stealing)
             return;
 
         Debug.Log("盗み中断");
@@ -83,10 +80,8 @@ public class Steal : MonoBehaviour
 
     private void EndSteal()
     {
-        IsStealing = false;
         _target = null;
         _elapsedTime = 0f;
-
-        _playerController.SetStealing(false);
+        _playerController.SetState( PlayerController.PlayerState.Normal);
     }
 }
