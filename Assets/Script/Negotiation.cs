@@ -5,6 +5,7 @@ public class Negotiation : MonoBehaviour
     [SerializeField] private GameObject _dialoguePanel;
     [SerializeField] private GameObject _choicePanel;
     [SerializeField] private float _negotiationRange = 2f;
+    [SerializeField] private int _leavePayment = 100;
 
     private PlayerController _playerController;
     private EnemyBase _targetEnemy;
@@ -64,18 +65,25 @@ public class Negotiation : MonoBehaviour
     }
 
     public void OnForgiveButton()
-{
-    Debug.Log("見逃してを選択した");
-}
+    {
+        if(_targetEnemy == null)
+           return;
 
-public void OnAttackOtherButton()
-{
-    Debug.Log("敵を攻撃してを選択した");
-}
+        if(!_playerController.SpendMoney(_leavePayment))
+           return;
+        
+        _targetEnemy.ChangeState(EnemyBase.EnemyState.Exit);
+        EndNegotiation();
+    }
 
-public void OnNothingButton()
-{
-    Debug.Log("なんでもないを選択した");
-    EndNegotiation();
-}
+    public void OnAttackOtherButton()
+    {
+        Debug.Log("敵を攻撃してを選択した");
+    }
+
+    public void OnNothingButton()
+    {
+        Debug.Log("なんでもないを選択した");
+        EndNegotiation();
+    }
 }

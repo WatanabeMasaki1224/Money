@@ -7,6 +7,7 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private float _viewAngle = 90f;
     [SerializeField] private float _attackRange = 1.5f;
     [SerializeField] private float _moveSpeed = 3f;
+    [SerializeField] private Transform _exitPoint;
 
     private EnemyBase _enemyBase;
     private Punch _punch;
@@ -132,9 +133,42 @@ public class EnemyAI : MonoBehaviour
 
     private void ExitUpdate()
     {
-        // �ޏꎞ�̍s��
-    }
+        if(_exitPoint == null)
+        {
+            if(_animator != null)
+                _animator.SetBool("isWalkig",false);
+            
+            return;
+        }
 
+        Vector3 direction = _exitPoint.position - transform.position;
+        direction.y = 0f;
+
+        //脱出口に到着したら削除
+        if(direction.magnitude <= 0.2)
+        {
+            if(_animator != null)
+                _animator.SetBool("isWAlking",false);
+
+            Destroy(gameObject);
+            return;
+        }
+
+        direction.Normalize();
+        transform.forward = direction;
+
+        if (_characterController != null)
+        {
+            _characterController.Move(
+                direction * _moveSpeed * Time.deltaTime
+        );
+        }
+
+        if (_animator != null)
+        {
+            _animator.SetBool("isWalking", true);
+        }
+    }
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;

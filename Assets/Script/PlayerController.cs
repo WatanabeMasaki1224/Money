@@ -1,4 +1,5 @@
-﻿using Unity.Collections.LowLevel.Unsafe;
+﻿using System.Data;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -123,5 +124,18 @@ public class PlayerController : MonoBehaviour
     {
         _hp += amount;
         Debug.Log($"お金を盗んだ{amount}");
+    }
+
+    public bool SpendMoney(int amount)
+    {
+        if(amount < 0 || _hp < amount)
+        {
+            Debug.Log("お金が足りない");
+            return false;
+        }
+
+        _hp -= amount;
+        Debug.Log($"お金を払った:{amount}");
+        return true;
     }
 }
