@@ -27,6 +27,7 @@ public class PlayerController : MonoBehaviour
     private Animator _animator;
     private Punch _punch;
     private Steal _steal;
+    private Negotiation _negotiation;
 
     private void Awake()
     {
@@ -34,6 +35,7 @@ public class PlayerController : MonoBehaviour
         _animator = GetComponent<Animator>();
         _punch = GetComponent<Punch>();
         _steal = GetComponent<Steal>();
+        _negotiation= GetComponent<Negotiation>();
     }
 
     public void OnMove(InputAction.CallbackContext context)
@@ -48,16 +50,27 @@ public class PlayerController : MonoBehaviour
     }
 
     public void OnSteal(InputAction.CallbackContext context)
-{
-    if (_steal == null)
-        return;
+    {
+        if (_steal == null)
+           return;
 
-    if (context.started)
-        _steal.StartSteal();
+        if (context.started)
+           _steal.StartSteal();
 
-    if (context.canceled)
-        _steal.CancelSteal();
-}
+        if (context.canceled)
+           _steal.CancelSteal();
+    }
+
+    public void OnNegotiation(InputAction.CallbackContext context)
+    {
+        if (!context.performed)
+           return;
+
+        if (CurrentState != PlayerState.Normal)
+           return;
+
+        _negotiation.StartNegotiation();
+    }
 
     private void Update()
     {

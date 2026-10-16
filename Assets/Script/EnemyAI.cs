@@ -122,11 +122,6 @@ public class EnemyAI : MonoBehaviour
         if (_animator != null)
         {
             _animator.SetBool("isWalking", true);
-            Debug.Log("isWalking: " + _animator.GetBool("isWalking"));
-        }
-        else
-        {
-            Debug.Log("Animator���擾�ł��Ă��܂���");
         }
     }
 

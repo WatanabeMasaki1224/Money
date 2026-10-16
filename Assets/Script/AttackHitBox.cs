@@ -6,8 +6,9 @@ public class AttackHitBox : MonoBehaviour
     [SerializeField] EnemyBase _enemyBase;
 
     private void OnTriggerEnter(Collider other)
-    {
-        // ƒvƒŒƒCƒ„[‚ÌUŒ‚
+    { 
+        Debug.Log($"æ”»æ’ƒåˆ¤å®šã«æ¥è§¦ï¼š{other.name}");
+        // ï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½ÌUï¿½ï¿½
         if (_playerController != null)
         {
             EnemyBase enemy = other.GetComponent<EnemyBase>();
@@ -16,7 +17,7 @@ public class AttackHitBox : MonoBehaviour
                 enemy.TakeDamage(_playerController.AttackPower);
         }
 
-        // “G‚ÌUŒ‚
+        // ï¿½Gï¿½ÌUï¿½ï¿½
         if (_enemyBase != null)
         {
             PlayerController player = other.GetComponent<PlayerController>();

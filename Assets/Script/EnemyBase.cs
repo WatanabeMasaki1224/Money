@@ -27,6 +27,8 @@ public class EnemyBase : MonoBehaviour
     public void TakeDamage(int damage)
     {
         _hp -= damage;
+        // 攻撃されたら敵対する
+        ChangeState(EnemyState.Attack);
         Debug.Log($"{gameObject.name} が {damage} ダメージを受けた。残りHP：{_hp}");
 
         if(_hp <= 0)
