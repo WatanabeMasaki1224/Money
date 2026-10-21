@@ -2621,7 +2621,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Punch
   _animator: {fileID: 1804789559}
   _attackHitbox: {fileID: 1923316165}
-  _attackCooldDown: 2
+  _attackCooldDown: 1
 --- !u!114 &1804789561
 MonoBehaviour:
   m_ObjectHideFlags: 0

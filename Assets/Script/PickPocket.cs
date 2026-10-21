@@ -1,3 +1,4 @@
+using UnityEditor.MPE;
 using UnityEngine;
 
 public class PickPocket : MonoBehaviour
@@ -69,18 +70,37 @@ public class PickPocket : MonoBehaviour
 
         if (_elapsedTime >= _pickpocketTime)
         {
-            // このNPCからスリを試した回数を増やす
-            _target.AddPickpocketCount();
-
-            // スリで盗める金額を獲得する
-            int amount = _target.PickpocketAmount;
-            _playerController.AddMoney(amount);
-
-            Debug.Log(
-                $"スリ成功：{amount}円、試行回数：{_target.PickpocketCount}");
-
-            EndPickpocket();
+            CompletePickpocket();
         }
+    }
+
+    private void CompletePickpocket()
+    {
+        int attemptCount = _target.PickpocketCount +1;
+        float fallureRate = 1f;
+
+        if(attemptCount == 1)
+            fallureRate = 0.2f;
+        else if(attemptCount == 2)
+            fallureRate = 0.5f;
+        else if(attemptCount == 3)
+            fallureRate = 0.8f;
+
+        int randomValue = Random.Range(0,100);
+        bool failed = randomValue < fallureRate * 100f;
+        //成功・失敗にかかわらず数を増やす
+        _target.AddPickpocketCount();
+
+        if(failed)
+        {
+            _target.ChangeState(EnemyBase.EnemyState.Attack);
+            EndPickpocket();
+            return;
+        }
+
+        int amount = _target.PickpocketAmount;
+        _playerController.AddMoney(amount);
+        EndPickpocket();
     }
 
     public void CancelPickpocket()
