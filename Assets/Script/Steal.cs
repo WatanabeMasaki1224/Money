@@ -9,10 +9,12 @@ public class Steal : MonoBehaviour
     private PlayerController _playerController;
     private Stealable _target;
     private float _elapsedTime;
+    private StealHitBox _stealHitBox;
 
     private void Awake()
     {
         _playerController = GetComponent<PlayerController>();
+        _stealHitBox = GetComponentInChildren<StealHitBox>();
     }
 
     public void StartSteal()
@@ -20,28 +22,10 @@ public class Steal : MonoBehaviour
         if (_playerController.CurrentState != PlayerController.PlayerState.Normal)
             return;
 
-        Vector3 origin = transform.position + Vector3.up * _rayHeight;
+        _target = _stealHitBox.GetStealable();
 
-        // プレイヤーの正面にRayを飛ばす
-        if (!Physics.Raycast(
-            origin,
-            transform.forward,
-            out RaycastHit hit,
-            _stealDistance,
-            Physics.DefaultRaycastLayers,
-            QueryTriggerInteraction.Collide))
-        {
+        if (_target == null)
             return;
-        }
-
-         // 当たったCollider自身、または親からStealableを取得
-        _target = hit.collider.GetComponentInParent<Stealable>();
-
-        if (_target == null || _target.IsStolen)
-        {
-            _target = null;
-            return;
-        }
 
         _elapsedTime = 0f;
         _playerController.SetState(PlayerController.PlayerState.Stealing);

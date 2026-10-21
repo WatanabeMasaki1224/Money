@@ -10,11 +10,13 @@ public class PickPocket : MonoBehaviour
     private PlayerController _playerController;
     private EnemyBase _target;
     private float _elapsedTime;
+    private StealHitBox _stealHitBox;
     
 
     private void Awake()
     {
         _playerController = GetComponent<PlayerController>();
+        _stealHitBox = GetComponentInChildren<StealHitBox>();
     }
 
     public bool StartPickpocket()
@@ -22,32 +24,14 @@ public class PickPocket : MonoBehaviour
         if (_playerController.CurrentState != PlayerController.PlayerState.Normal)
             return false;
 
-        Vector3 origin = transform.position + Vector3.up * _rayHeight;
+        _target = _stealHitBox.GetEnemy();
 
-        // プレイヤーの正面にRayを飛ばす
-        if (!Physics.Raycast(
-            origin,
-            transform.forward,
-            out RaycastHit hit,
-            _pickpocketDistance,
-            Physics.DefaultRaycastLayers,
-            QueryTriggerInteraction.Collide))
-        {
-            return false;
-        }
-
-        // 当たったCollider自身、または親からEnemyBaseを取得
-        EnemyBase enemy = hit.collider.GetComponentInParent<EnemyBase>();
-
-        if (enemy == null || enemy.State != EnemyBase.EnemyState.Normal)
+        if (_target == null )
             return false;
 
-        _target = enemy;
         _elapsedTime = 0f;
-
         _playerController.SetState(
             PlayerController.PlayerState.Pickpocketing);
-
         Debug.Log("スリ開始");
        
         return true;

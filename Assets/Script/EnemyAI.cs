@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class EnemyAI : MonoBehaviour
@@ -48,7 +49,9 @@ public class EnemyAI : MonoBehaviour
 
     private void NormalUpdate()
     {
-        if (_playerController.CurrentState == PlayerController.PlayerState.Stealing
+        
+        if ((_playerController.CurrentState == PlayerController.PlayerState.Stealing
+        || _playerController.CurrentState == PlayerController.PlayerState.Pickpocketing)
         && CanSeePlayer())
         {
             _enemyBase.ChangeState(EnemyBase.EnemyState.Attack);
