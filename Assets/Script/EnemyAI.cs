@@ -148,7 +148,7 @@ public class EnemyAI : MonoBehaviour
         if(direction.magnitude <= 0.2)
         {
             if(_animator != null)
-                _animator.SetBool("isWAlking",false);
+                _animator.SetBool("isWalking",false);
 
             Destroy(gameObject);
             return;

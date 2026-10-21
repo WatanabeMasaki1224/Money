@@ -1716,6 +1716,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8622530670846373209, guid: c73f11c7efd75c44ba020cdfddad630e, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1804789562}
+    - targetCorrespondingSourceObject: {fileID: 8622530670846373209, guid: c73f11c7efd75c44ba020cdfddad630e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1804789563}
   m_SourcePrefab: {fileID: 100100000, guid: c73f11c7efd75c44ba020cdfddad630e, type: 3}
 --- !u!1 &1177860869
 GameObject:
@@ -2260,6 +2263,7 @@ MonoBehaviour:
   _state: 0
   _attackPower: 100
   _moneyReward: 100
+  _pickpocketAmount: 30
   _playerController: {fileID: 1804789551}
 --- !u!95 &1466983320 stripped
 Animator:
@@ -2649,6 +2653,21 @@ MonoBehaviour:
   _choicePanel: {fileID: 123118}
   _negotiationRange: 2
   _leavePayment: 100
+--- !u!114 &1804789563
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1804789550}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19ebf176468aef429d57dda9290c1ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PickPocket
+  _pickpocketDistance: 2
+  _pickpocketTime: 2
+  _rayHeight: 1
 --- !u!1 &1923316163
 GameObject:
   m_ObjectHideFlags: 0

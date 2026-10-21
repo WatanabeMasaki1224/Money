@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -11,6 +11,7 @@ public class PlayerController : MonoBehaviour
         Normal,
         Stealing,
         Negotiating,
+        Pickpocketing,
         Dead
     }
 
@@ -28,6 +29,7 @@ public class PlayerController : MonoBehaviour
     private Animator _animator;
     private Punch _punch;
     private Steal _steal;
+    private PickPocket _pickpocket;
     private Negotiation _negotiation;
 
     private void Awake()
@@ -37,6 +39,7 @@ public class PlayerController : MonoBehaviour
         _punch = GetComponent<Punch>();
         _steal = GetComponent<Steal>();
         _negotiation= GetComponent<Negotiation>();
+        _pickpocket = GetComponent<PickPocket>();
     }
 
     public void OnMove(InputAction.CallbackContext context)
@@ -52,14 +55,39 @@ public class PlayerController : MonoBehaviour
 
     public void OnSteal(InputAction.CallbackContext context)
     {
-        if (_steal == null)
-           return;
-
         if (context.started)
-           _steal.StartSteal();
+        {
+            if (CurrentState != PlayerState.Normal)
+            return;
+
+            bool canPickpocket = false;
+
+            if(_pickpocket != null)
+            {
+                canPickpocket = _pickpocket.StartPickpocket();
+            }
+            if(canPickpocket)
+            return;
+
+            if(_steal != null)
+            {
+                _steal.StartSteal();
+            }
+        }
+           
 
         if (context.canceled)
-           _steal.CancelSteal();
+        {
+            if(_steal != null)
+            {
+                _steal.CancelSteal();
+            }
+
+            if(_pickpocket != null)
+            {
+                _pickpocket.CancelPickpocket();
+            }
+        }
     }
 
     public void OnNegotiation(InputAction.CallbackContext context)

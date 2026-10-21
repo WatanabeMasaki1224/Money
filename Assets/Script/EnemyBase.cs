@@ -15,15 +15,25 @@ public class EnemyBase : MonoBehaviour
     [SerializeField] private EnemyState _state = EnemyState.Normal;
     [SerializeField] private int _attackPower = 10;
     [SerializeField] private int _moneyReward = 100;
+    [SerializeField] private int _pickpocketAmount = 30;
     [SerializeField] private PlayerController _playerController;
-
+    private int _pickpocketCount = 0;
     public int AttackPower => _attackPower;
     public EnemyState State => _state;
+    public int MoneyReward => _moneyReward;
+    public int PickpocketAmount => _pickpocketAmount;
+    public int PickpocketCount => _pickpocketCount;
 
     public void ChangeState(EnemyState state)
     {
         _state = state;
     }
+
+    public void AddPickpocketCount()
+    {
+        _pickpocketCount++;
+    }
+    
     public void TakeDamage(int damage)
     {
         _hp -= damage;
