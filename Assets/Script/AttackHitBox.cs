@@ -24,6 +24,11 @@ public class AttackHitBox : MonoBehaviour
 
             if (player != null)
                 player.TakeDamage(_enemyBase.AttackPower);
+            
+            EnemyBase enemy = other.GetComponent<EnemyBase>();
+
+            if(enemy != null)
+                enemy.TakeDamage(_enemyBase.AttackPower);
         }
     }
 }

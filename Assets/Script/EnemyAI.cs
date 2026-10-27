@@ -9,12 +9,15 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private float _attackRange = 1.5f;
     [SerializeField] private float _moveSpeed = 3f;
     [SerializeField] private Transform _exitPoint;
+    [SerializeField] private float _followDistance = 2f;
 
     private EnemyBase _enemyBase;
     private Punch _punch;
     private CharacterController _characterController;
     private Animator _animator;
     private PlayerController _playerController;
+    private bool _isAlly;
+    private EnemyBase _attackTarget;
 
     private void Awake()
     {
@@ -27,6 +30,12 @@ public class EnemyAI : MonoBehaviour
 
     private void Update()
     {
+        if(_isAlly)
+        {
+            AllyUpdate();
+            return;
+        }
+
         switch (_enemyBase.State)
         {
             case EnemyBase.EnemyState.Normal:
@@ -109,7 +118,8 @@ public class EnemyAI : MonoBehaviour
         {
             if (_animator != null)
                 _animator.SetBool("isWalking", false);
-
+            
+            SetAllyTargetForAllies(_enemyBase);
             _punch.Attack();
             return;
         }
@@ -211,6 +221,106 @@ public class EnemyAI : MonoBehaviour
 
             Gizmos.DrawLine(previousPoint, point);
             previousPoint = point;
+        }
+    }
+
+    public void BecomeAlly()
+    {
+        _isAlly = true;
+        _attackTarget = null;
+
+        _enemyBase.ChangeState(EnemyBase.EnemyState.Normal);
+    }
+
+    private void AllyUpdate()
+    {
+        // 攻撃対象がいれば、そのNPCを攻撃する
+        if (_attackTarget != null &&
+            _attackTarget.State != EnemyBase.EnemyState.Exit)
+        {
+            AttackTargetUpdate();
+            return;
+        }
+
+        _attackTarget = null;
+
+        // 攻撃対象がいなければ、プレイヤーの後ろを追従する
+        Vector3 targetPosition =
+            _player.position - _player.forward * _followDistance;
+
+        Vector3 direction = targetPosition - transform.position;
+        direction.y = 0f;
+
+        float distance = direction.magnitude;
+
+        if (distance <= 0.2f)
+        {
+            if (_animator != null)
+                _animator.SetBool("isWalking", false);
+
+            return;
+        }
+
+        transform.forward = direction.normalized;
+
+        if (_characterController != null)
+        {
+            _characterController.Move(
+                direction.normalized * _moveSpeed * Time.deltaTime);
+        }
+
+        if (_animator != null)
+            _animator.SetBool("isWalking", true);
+    }
+
+    private void AttackTargetUpdate()
+    {
+        Vector3 direction =
+            _attackTarget.transform.position - transform.position;
+
+        direction.y = 0f;
+
+        float distance = direction.magnitude;
+
+        if (direction != Vector3.zero)
+            transform.forward = direction.normalized;
+
+        // 攻撃アニメーション中は移動しない
+        if (_punch.IsAttacking)
+            return;
+
+        // 攻撃できる距離なら攻撃する
+        if (distance <= _attackRange)
+        {
+            if (_animator != null)
+                _animator.SetBool("isWalking", false);
+
+            _punch.Attack();
+            return;
+        }
+
+        // 攻撃対象に近づく
+        if (_characterController != null)
+        {
+            _characterController.Move(
+                direction.normalized * _moveSpeed * Time.deltaTime);
+        }
+
+        if (_animator != null)
+            _animator.SetBool("isWalking", true);
+    }
+
+    public static void SetAllyTargetForAllies(EnemyBase target)
+    {
+        EnemyAI[] enemies =
+            FindObjectsByType<EnemyAI>(FindObjectsSortMode.None);
+
+        foreach (EnemyAI enemy in enemies)
+        {
+            if (enemy._isAlly)
+            {
+                enemy._attackTarget = target;
+            }
         }
     }
 }

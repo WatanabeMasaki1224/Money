@@ -78,7 +78,19 @@ public class Negotiation : MonoBehaviour
 
     public void OnAttackOtherButton()
     {
-        Debug.Log("敵を攻撃してを選択した");
+        if (_targetEnemy == null)
+        return;
+
+    EnemyAI enemyAI = _targetEnemy.GetComponent<EnemyAI>();
+
+    if (enemyAI == null)
+        return;
+
+    enemyAI.BecomeAlly();
+
+    Debug.Log("NPCが味方になった");
+
+    EndNegotiation();
     }
 
     public void OnNothingButton()
