@@ -10,6 +10,7 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private float _moveSpeed = 3f;
     [SerializeField] private Transform _exitPoint;
     [SerializeField] private float _followDistance = 2f;
+    [SerializeField] private float _targetSwitchCooldown = 2f;
 
     private EnemyBase _enemyBase;
     private Punch _punch;
@@ -18,6 +19,9 @@ public class EnemyAI : MonoBehaviour
     private PlayerController _playerController;
     private bool _isAlly;
     private EnemyBase _attackTarget;
+    public bool IsAlly => _isAlly;
+    private Transform _enemyCombatTarget;
+    private float _nextTargetSwitchTime;
 
     private void Awake()
     {
@@ -88,7 +92,11 @@ public class EnemyAI : MonoBehaviour
 
     private void AttackUpdate()
     {
-        Vector3 direction = _player.position - transform.position;
+        Transform target = _enemyCombatTarget != null
+        ? _enemyCombatTarget
+        : _player;
+
+        Vector3 direction = target.position - transform.position;
         direction.y = 0f;
 
         float distance = direction.magnitude;
@@ -104,7 +112,7 @@ public class EnemyAI : MonoBehaviour
         }
 
         // ���E�̋�����艓����Βʏ��Ԃɖ߂�
-        if (distance > _viewDistance)
+        if (target == _player && distance > _viewDistance)
         {
             if (_animator != null)
                 _animator.SetBool("isWalking", false);
@@ -322,5 +330,22 @@ public class EnemyAI : MonoBehaviour
                 enemy._attackTarget = target;
             }
         }
+    }
+
+    public void SetEnemyCombatTarget(Transform target)
+    {
+        if (_isAlly || target == null)
+            return;
+
+        // 同じ相手への連続ヒットではタイマーを更新しない。
+        if (_enemyCombatTarget == target)
+            return;
+
+        if (Time.time < _nextTargetSwitchTime)
+            return;
+
+        _enemyCombatTarget = target;
+        _nextTargetSwitchTime = Time.time + _targetSwitchCooldown;
+        _enemyBase.ChangeState(EnemyBase.EnemyState.Attack);
     }
 }

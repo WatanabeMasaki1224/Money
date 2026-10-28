@@ -36,7 +36,6 @@ public class EnemyBase : MonoBehaviour
     
     public void TakeDamage(int damage)
     {
-        EnemyAI.SetAllyTargetForAllies(this);
         _hp -= damage;
         // 攻撃されたら敵対する
         ChangeState(EnemyState.Attack);

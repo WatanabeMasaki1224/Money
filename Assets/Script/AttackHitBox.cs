@@ -14,7 +14,16 @@ public class AttackHitBox : MonoBehaviour
             EnemyBase enemy = other.GetComponent<EnemyBase>();
 
             if (enemy != null)
+            {
+                EnemyAI enemyAI = enemy.GetComponent<EnemyAI>();
+                if (enemyAI != null && !enemyAI.IsAlly)
+                {
+                    // プレイヤーに殴られた敵も、クールタイム後にプレイヤーへ狙いを切り替える。
+                    enemyAI.SetEnemyCombatTarget(_playerController.transform);
+                }
+
                 enemy.TakeDamage(_playerController.AttackPower);
+            }
         }
 
         // �G�̍U��
@@ -24,11 +33,25 @@ public class AttackHitBox : MonoBehaviour
 
             if (player != null)
                 player.TakeDamage(_enemyBase.AttackPower);
-            
-            EnemyBase enemy = other.GetComponent<EnemyBase>();
 
-            if(enemy != null)
-                enemy.TakeDamage(_enemyBase.AttackPower);
+            EnemyBase target = other.GetComponent<EnemyBase>();
+
+            if (target != null)
+            {
+                EnemyAI attackerAI = _enemyBase.GetComponent<EnemyAI>();
+                EnemyAI targetAI = target.GetComponent<EnemyAI>();
+
+                // 味方NPCが敵を殴ったら、殴られた敵のターゲットを味方NPCにする
+                if (attackerAI != null &&
+                    attackerAI.IsAlly &&
+                    targetAI != null &&
+                    !targetAI.IsAlly)
+                {
+                    targetAI.SetEnemyCombatTarget(_enemyBase.transform);
+                }
+
+                target.TakeDamage(_enemyBase.AttackPower);
+            }
         }
     }
 }
